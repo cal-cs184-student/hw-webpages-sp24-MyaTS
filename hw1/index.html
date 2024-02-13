@@ -14,6 +14,19 @@
   h1, h2, h3, h4 {
     font-family: 'Source Sans Pro', sans-serif;
   }
+
+  img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    
+  }
 </style>
 <title>CS 184/284A Rasterizer</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -25,7 +38,7 @@
 
 <h1 align="middle">CS 184/284A: Computer Graphics and Imaging, Spring 2024</h1>
 <h1 align="middle">Homework 1: Rasterizer</h1>
-<h2 align="middle">YOUR NAME</h2>
+<h2 align="middle">Mya Thanegi Soe & Nico Vega</h2>
 
 <br><br>
 
@@ -38,30 +51,13 @@
 
 <h3 align="middle">Part 1: Rasterizing single-color triangles</h3>
 
-<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
-
 <div align="middle">
   <table style="width=100%">
     <tr>
       <td>
         <img src="./images/Screen Shot 2024-02-10 at 1.20.01 PM.png" align="middle" width="400px"/>
-        <figcaption align="middle">Caption goes here.</figcaption>
-		<p> We began with drawing rasterize_lines 3 times with the given 3 coordinates, so that it draw triangles. After that we referenced the lecture slides on using the for loops to fill out the triangles. We first need to find the minX, maxX, minY and maxY coordinates, we did that using if statements although having built-in min and max functions could have been more efficient. We used those variables and set them as i and j. We had to make sure to floor the maxX and maxY values, and that they are inclusive in the for loop condition. Then we calculate the weights for each coordinate by creating the point_in_triangle helper function, and passing in each coordinate +0.5. Then we rasterize the point if it satisfies the condition we set up. The problem we encountered was getting the right point_in_triangle function because we were testing out different methods including baycentric equations and others when it was so much more simpler. Another problem was thinking about the edge cases such as figuring out why we need to floor some values. The counterclockwise was the tricky part but we figured that it goes counter-clockwise when all the weights are more than or equal to 0. Therefore, we just modified the if statement. </p>
-      </td>
-      <td>
-        <img src="images/image2.png" align="middle" width="400px"/>
-        <figcaption align="middle">Caption goes here.</figcaption>
-      </td>
-    </tr>
-    <br>
-    <tr>
-      <td>
-        <img src="images/image3.png" align="middle" width="400px"/>
-        <figcaption align="middle">Caption goes here.</figcaption>
-      </td>
-      <td>
-        <img src="images/image4.png" align="middle" width="400px"/>
-        <figcaption align="middle">Caption goes here.</figcaption>
+        <figcaption align="middle">Test 4's most intersting parts</figcaption>
+		  <p> We began with drawing rasterize_lines 3 times with the given 3 coordinates, so that it draw triangles. After that we referenced the lecture slides on using the for loops to fill out the triangles. We first need to find the minX, maxX, minY and maxY coordinates, we did that using if statements although having built-in min and max functions could have been more efficient. We used those variables and set them as i and j. We had to make sure to floor the maxX and maxY values, and that they are inclusive in the for loop condition. Then we calculate the weights for each coordinate by creating the point_in_triangle helper function, and passing in each coordinate +0.5. Then we rasterize the point if it satisfies the condition we set up. The problem we encountered was getting the right point_in_triangle function because we were testing out different methods including baycentric equations and others when it was so much more simpler. Another problem was thinking about the edge cases such as figuring out why we need to floor some values. The counterclockwise was the tricky part but we figured that it goes counter-clockwise when all the weights are more than or equal to 0. Therefore, we just modified the if statement. </p>
       </td>
     </tr>
   </table>
@@ -70,22 +66,140 @@
 
 <h3 align="middle">Part 2: Antialiasing triangles</h3>
 
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <tr>
+      <h4 align="middle">Algorithm Description</h4>
+		<p>
+      Our supersampling algorithm upscales the image by the sampling rate, then takes the average rgb value of the upscaled image and downscales the image back to the original dimensions by replacing the original pixel with the average rgb value of the subpixels.
+Similar to task 1, we get the minX, minY, maxX, maxY coordinates for our respective triangle in rasterize triangle. However, instead of looping through each pixel by pixel, we need to account for the sampling rate, so we instead iterate by (1/sqrt(sample_rate)). This ensures that we visit each subpixel for our sampling frame. Subsequently, instead of checking the points i+0.5, j+0.5 to see if the pixel lies inside the triangle via the 3 line test, we use i + (1/sqrt(sample_rate)),  j + (1/sqrt(sample_rate)), and calling fill_pixel with i + (1/sqrt(sample_rate)),  j + (1/sqrt(sample_rate)) if it lies in the triangle.
+We had to modify the fill_pixel, changing the indexing of the sample frame to sample_frame[ y * (width * sqrt(sample_rate)) + x]
+In addition, we had to add functionality to resolve_to_frame buffer to support supersampling. We added a condition to check if the rate is greater than 1, so we can reuse task 1 code if we don’t need to accommodate supersampling. Otherwise, we populate the framebuffer by going through each pixel on the framebuffer, getting the corresponding subpixels for that pixel based on the sampling rate (iterate by (1/sqrt(sample_rate)) on the x and y plane of the sample frame) and averaging their rgb values. We set that pixel to the average of their rgb values. Averaging the rgb values via supersampling creates smoother lines and boundaries for shapes, as it blurs jagged edges.
+      </p>
+      </tr>
+      <tr>
+        <h4 class="center" align="middle">Sampling Effect Analysis</h4>
+        <p class="center" align="middle">Supersampling becomes blurrier with higher sample rates because more and more pixels are being averaged then downscaled to the original image. As we see, a sample rate of 1 has no blur, while 4 has some blurring, and 16 is very blurry. The image is more accurate due to the increased samples, however downscaling from its high resolution sampleframe to the frame buffer causes blurring.</p>
+          
+      </tr>
+      <td>
+        <img src="./images/nosamp.png" align="middle" width="400px"/>
+        <figcaption align="middle">Test 4 with a sample rate of 1</figcaption>
+      </td>
+    </tr>
+    <br>
+    <tr>
+      <td>
+        <img src="images/4samp.png" align="middle" width="400px"/>
+        <figcaption align="middle">Test 4 with a sample rate of 4</figcaption>
+      </td>
+      <td>
+        <img src="images/16samp.png" align="middle" width="400px"/>
+        <figcaption align="middle">Test 4 with a sample rate of 16</figcaption>
+      </td>
+    </tr>
+    <tr>
+   
+    </tr>
+      
+    
+  </table>
+</div>
+
 
 
 <h3 align="middle">Part 3: Transforms</h3>
 
-
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="./images/my_robot.png" align="middle" width="400px"/>
+        <figcaption align="middle">Our robot has been making some robogains and wants to show off.</figcaption>
+        <p>I tried to get my robot to flex their arms, I also gave them bigger arms, they're now a swolebot</p>
+		  </td>
+    </tr>
+  </table>
+</div>
 
 <h2 align="middle">Section II: Sampling</h2>
 
 <h3 align="middle">Part 4: Barycentric coordinates</h3>
 
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="" align="middle" width="400px"/>
+        <figcaption align="middle">Image to help explain Barycentric coordinates</figcaption>
+        <p>insert explaination here</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <img src="./images/test7.png" align="middle" width="400px"/>
+        <figcaption align="middle">Basic Test 7 with a Sample Rate of 1</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
 
 <h3 align="middle">Part 5: "Pixel sampling" for texture mapping</h3>
 
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="./images/nearestnosamp.png" align="middle" width="400px"/>
+        <img src="./images/nearest16samp.png" align="middle" width="400px"/>
+        <img src="./images/linnosamp.png" align="middle" width="400px"/>
+        <img src="./images/lin16samp.png" align="middle" width="400px"/>
+      </td>
+    </tr>
+  </table>
+</div>
 
 <h3 align="middle">Part 6: "Level sampling" with mipmaps for texture mapping</h3>
 
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <h4>Algorithm Descritption</h4>
+      <p>
+        Level sampling involves creating a downsampled image, a mipmap, of the original image for aliasing in textures. 
+Implementing level sampling involves first getting the uv texture coordinates which is given to us from task 5. We use these coordinates to compute the mipmap level by adding a small change to the uv x and y values then getting the difference vector. These 2 vectors for observing the change in x and y hold the values du/dx, dv/dx, du/dy, and dv/dy respectively. We then scale these du and dv values by the width and height of the original image. We take the max distance of the dx vector versus the dy vector to get the dominant mipmap, meaning which pixel will cover the most pixel space in the original image will dominate the mipmap or downscaled image for our best estimate. The mipmap level is then returned by log2f of whatever the max value.
+Now that we have the mipmap level, we need the integer value since the value returned is a float. We create a ceiling and floor to round the float to the nearest integer, note that the float cannot be above mipmap.size() - 1 nor below 0 so our ceiling and floor are bounded by those values respectively. We also create a rounded variable for our float just to call round(value) for easier use in implementing nearest.
+For level zero, we simply check what pixel sampling method we’re using and pass in sp.p_uv and 0 for the level.
+For nearest level sampling, its similar to level 0. However, instead of passing in 0 for the level, we pass in the rounded value of the float level, or the nearest integer.
+For linear level sampling, we implement a form of trilinear filtering which involves computing the rgb value of sampling using the corresponding pixel sampling method (bilinear or nearest) with the floor and ceiling levels. We compute the change in the floor and ceiling rgb values and add the change in rgb values to the ceiling rgb values to get our new rgb color value.
+Repeating this sampling method gives us our downscaled mipmap.
+
+      </p>
+    </tr>
+    <tr>
+      <td>
+        <img src="./images/l0pnear.png" align="middle" width="400px"/>
+        <figcaption align="middle">Level 0, Nearest pixel sampling</figcaption>
+        <img src="./images/l0plin.png" align="middle" width="400px"/>
+        <figcaption align="middle">Level 0, Linear pixel sampling</figcaption>
+
+      </td>
+      <td>
+        <img src="./images/lnearpnear.png" align="middle" width="400px"/>
+        <figcaption align="middle">Nearest level, Nearest pixel sampling</figcaption>
+        <img src="./images/lnearplin.png" align="middle" width="400px"/>
+        <figcaption align="middle">Nearest level, Linear pixel sampling</figcaption>
+      </td>
+    </tr>
+    <tr>
+      <h4>Sampling Techniques Tradeoffs</h4>
+      <p>
+        Between the 3 different level sampling methods, the tradeoffs in speed versus image quality go in order of level zero, nearest, and linear. Level zero requires the least amount of memory usage and is the fastest of the 3 since it requires no additional aliasing. That being said, the Moire effect is clearly noticeable and lines look pixelated. Nearest is next and is a drastic upgrade over level zero. In terms of memory usage and speed, since it needs to recursively count mipmaps, it will use more space and time than not aliasing at all. However, its the fastest aliasing technique and produces solid image quality. The lines where the moire effect used to be, are now noticeably smoother, although look more faded than biliinear on closer inspection. Bilinear is the best in terms of general quality, but is the most memory and calculation intensive method. Lines are solid on bilinear while looking closer to the original image’s sharpness, as nearest creates a noticeable blur on everything. However, the additional calculations from sampling the floor and ceiling create more memory and time overhead compared to nearest.
+      </p>
+    </tr>
+  </table>
+</div>
 
 
 <h2 align="middle">Section III: Art Competition</h2>
