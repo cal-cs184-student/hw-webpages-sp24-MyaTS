@@ -131,9 +131,9 @@ In addition, we had to add functionality to resolve_to_frame buffer to support s
   <table style="width=100%">
     <tr>
       <td>
-        <img src="" align="middle" width="400px"/>
-        <figcaption align="middle">Image to help explain Barycentric coordinates</figcaption>
-        <p>insert explaination here</p>
+        <img src="./images/prb.png" align="middle" width="400px"/>
+        <figcaption align="middle">Purple Red Black Triangle, Barycentric Coordinates</figcaption>
+        <p>Barycentric coordinates can be thought of as a coordinate system based on the mass of each vertex in the polygon. For example, at the center of this purple,red, and black triangle is the bary center, meaning the masses enacting on that point from each vertex is equal. One application of this is to check if a point is inside a triangle, since masses can be positive or negative, we know that a point lies inside a triangle if the mass of each vertex is positive.</p>
       </td>
     </tr>
     <tr>
@@ -156,6 +156,16 @@ In addition, we had to add functionality to resolve_to_frame buffer to support s
         <img src="./images/linnosamp.png" align="middle" width="400px"/>
         <img src="./images/lin16samp.png" align="middle" width="400px"/>
       </td>
+    </tr>
+    <tr>
+      <h4>Algorithm Description</h4>
+      <p>Just following all instructions from the slides and discussions, the most trickiest part to handle is the calculations for bilinear interpolation and manipulating vectors. Ended up handling the r, g, b values individually instead of using the color vector. </p>
+      
+    </tr>
+
+    <tr>
+      <h4>Differences between Nearest and Bilinear Sampling</h4>
+      <p>The difference between nearest and bilinear sampling is most noticeable when significantly upscaling or downscaling images. While bilinear will take longer to compute than nearest due to the extra calculations, bilinear produces a smoother image than nearest sampling</p>
     </tr>
   </table>
 </div>
